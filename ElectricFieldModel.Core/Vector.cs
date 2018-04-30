@@ -69,7 +69,10 @@ namespace ElectricFieldModel.Core
         /// <returns></returns>
         public static Vector operator +(Vector a, Vector b)
         {
-            return Create(a.start, new Coord3d(a.end.X + b.end.X, a.end.Y + b.end.Y, a.end.Z + b.end.Z));
+            double offsetX = a.position.X + b.position.X, offsetY = a.position.Y + b.position.Y, offsetZ = a.position.Z + b.position.Z;
+            var endCoord = new Coord3d(a.start.X + offsetX, a.start.Y + offsetY, a.start.Z + offsetZ);
+
+            return Create(a.start, endCoord);
         }
 
         /// <summary>
@@ -96,9 +99,9 @@ namespace ElectricFieldModel.Core
         {
             start = newCoord;
 
-            end.X = start.X + end.X;
-            end.Y = start.Y + end.Y;
-            end.Z = start.Z + end.Z;
+            end.X = start.X + position.X;
+            end.Y = start.Y + position.Y;
+            end.Z = start.Z + position.Z;
         }
 
         public double Length

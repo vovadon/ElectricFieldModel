@@ -69,6 +69,8 @@ namespace ElectricFieldModel.Core
                     var resultTension = DetermineDirection(coord);
 
                     resultTension.Normalize();
+                    resultTension = resultTension * step;
+
                     coord = resultTension.GetEndCoord;
 
                     SetNextPoint(resultTension.GetStartCoord.AsArray);

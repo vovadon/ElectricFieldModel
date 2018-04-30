@@ -32,7 +32,7 @@ namespace ElectricFieldModel.Core
                     y = radius * Math.Sin(iy * pi_divideBy_pCount) * Math.Sin(2 * ix * pi_divideBy_pCount);
                     z = radius * Math.Cos(iy * pi_divideBy_pCount);
 
-                    vectors.Add(new Coord3d(x, y, z));
+                    vectors.Add(new Coord3d(position.X + x, position.Y + y, position.Z + z));
                 }
             }
             return vectors.ToArray();

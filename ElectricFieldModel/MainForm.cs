@@ -20,7 +20,7 @@ namespace ElectricFieldModel
             InitializeComponent();
             electricField = new Field(new Coord3d(-width, -width, -width), new Coord3d(width, width, width));
 
-            electricField.AddCharges(new Charge(new Coord3d(0, 0, 0), 5, 4E-6), new Charge(new Coord3d(20, 0, 0), 5, -4E-6));
+            electricField.AddCharges(new Charge(new Coord3d(-10, 0, 0), 5, 4E-6), new Charge(new Coord3d(10, 0, 0), 5, -4E-6));
 
             gCtrl.Load += GCtrl_Load;
             gCtrl.Paint += GCtrl_Paint;
@@ -85,17 +85,50 @@ namespace ElectricFieldModel
             GL.LineWidth(1);
 
             GL.Color3(Color.Red);
-            MyOl.Sphere(5, 16, 16);
+            MyOl.Sphere(5, 16, 16, -10);
+            //MyOl.Sphere(5, 16, 16, 10, 20);
+
             GL.Color3(Color.Blue);
-            MyOl.Sphere(5, 16, 16, 20);
+            MyOl.Sphere(5, 16, 16, 10);
+            //MyOl.Sphere(5, 16, 16, -10, 20);
 
             GL.Color3(Color.Yellow);
             GL.Begin(PrimitiveType.Lines);
-            var crg = electricField.GetChargeArray.Where(chrg => chrg.GetValue > 0d).First();
-            electricField.DrawLines(crg, 0, 8, GL.Vertex3);
-            GL.End();
 
+            var chargeCollection = electricField.GetChargeArray.Where(chrg => chrg.GetValue > 0d);
+            foreach (var crg in chargeCollection)
+            {
+                electricField.DrawLines(crg, 2, 16, GL.Vertex3);
+            }
+            
+            GL.End();
+            
             gCtrl.SwapBuffers();
+        }
+
+        private void TestMethod()
+        {
+            var crgPos = electricField.GetChargeArray[0];
+            var crgNeg = electricField.GetChargeArray[1];
+
+            var posIdty = crgPos.GetTensionVector(new Coord3d(30, 0, 45));
+            var negIdty = crgNeg.GetTensionVector(new Coord3d(30, 0, 45));
+
+            var res = posIdty + negIdty;
+
+            GL.Color3(Color.Green);
+            GL.Begin(PrimitiveType.Lines);
+            GL.Vertex3(posIdty.GetStartCoord.AsArray);
+            GL.Vertex3(posIdty.GetEndCoord.AsArray);
+
+            GL.Color3(Color.DarkOrange);
+            GL.Vertex3(negIdty.GetStartCoord.AsArray);
+            GL.Vertex3(negIdty.GetEndCoord.AsArray);
+
+            GL.Color3(Color.Purple);
+            GL.Vertex3(res.GetStartCoord.AsArray);
+            GL.Vertex3(res.GetEndCoord.AsArray);
+            GL.End();
         }
 
         private void GCtrl_Load(object sender, EventArgs e)
@@ -114,7 +147,7 @@ namespace ElectricFieldModel
             GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
         }
 
-        private int width = 50;
+        private int width = 100;
         private Field electricField;
     }
 }
