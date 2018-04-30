@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
+using ElectricFieldModel.Core;
 
 namespace ElectricFieldModel
 {
@@ -17,34 +18,44 @@ namespace ElectricFieldModel
         public MainForm()
         {
             InitializeComponent();
+            electricField = new Field(new Coord3d(-width, -width, -width), new Coord3d(width, width, width));
+
+            electricField.AddCharges(new Charge(new Coord3d(0, 0, 0), 5, 4E-6), new Charge(new Coord3d(20, 0, 0), 5, -4E-6));
 
             gCtrl.Load += GCtrl_Load;
             gCtrl.Paint += GCtrl_Paint;
             gCtrl.KeyDown += GCtrl_KeyDown;
-
-            rotationTimer.Tick += RotationTimer_Tick;
-            startTimerBut.Click += (o, e) => rotationTimer.Start();
-        }
-
-        private void RotationTimer_Tick(object sender, EventArgs e)
-        {
-            GL.MatrixMode(MatrixMode.Modelview);
-            GL.Rotate(2, 0, 0, 1);
-
-            gCtrl.Invalidate();
         }
 
         private void GCtrl_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.A)
+            GL.MatrixMode(MatrixMode.Projection);
+            switch (e.KeyCode)
             {
-                GL.MatrixMode(MatrixMode.Projection);
-                GL.Rotate(30, 0, 0, 1);
-            }
-            if (e.KeyCode == Keys.B)
-            {
-                GL.MatrixMode(MatrixMode.Modelview);
-                GL.Rotate(30, 0, 0, 1);
+                case Keys.A:
+                    GL.Translate(1, 0, 0);
+                    break;
+                case Keys.D:
+                    GL.Translate(-1, 0, 0);
+                    break;
+                case Keys.W:
+                    GL.Translate(0, -1, 0);
+                    break;
+                case Keys.S:
+                    GL.Translate(0, 1, 0);
+                    break;
+                case Keys.Q:
+                    GL.Translate(0, 0, -1);
+                    break;
+                case Keys.E:
+                    GL.Translate(0, 0, 1);
+                    break;
+                case Keys.Z:
+                    GL.Rotate(5, 0, 1, 0);
+                    break;
+                case Keys.C:
+                    GL.Rotate(5, 0, -1, 0);
+                    break;
             }
 
             gCtrl.Invalidate();
@@ -54,99 +65,35 @@ namespace ElectricFieldModel
         {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-            #region Cube
-            ///*задняя*/
-            //GL.Color3(Color.Red);
-            //GL.Begin(PrimitiveType.Polygon);
-            //GL.Vertex3(0, 0, 0);
-            //GL.Vertex3(width, 0, 0);
-            //GL.Vertex3(width, width, 0);
-            //GL.Vertex3(0, width, 0);
-            //GL.End();
-
-            ///*левая*/
-            //GL.Begin(PrimitiveType.Polygon);
-            //GL.Vertex3(0, 0, 0);
-            //GL.Vertex3(0, 0, width);
-            //GL.Vertex3(0, width, width);
-            //GL.Vertex3(0, width, 0);
-            //GL.End();
-
-            ///*нижняя*/
-            //GL.Begin(PrimitiveType.Polygon);
-            //GL.Vertex3(0, 0, 0);
-            //GL.Vertex3(0, 0, width);
-            //GL.Vertex3(width, 0, width);
-            //GL.Vertex3(width, 0, 0);
-            //GL.End();
-
-            ///*верхняя*/
-            //GL.Begin(PrimitiveType.Polygon);
-            //GL.Vertex3(0, width, 0);
-            //GL.Vertex3(0, width, width);
-            //GL.Vertex3(width, width, width);
-            //GL.Vertex3(width, width, 0);
-            //GL.End();
-
-            ///*передняя*/
-            //GL.Begin(PrimitiveType.Polygon);
-            //GL.Vertex3(0, 0, width);
-            //GL.Vertex3(width, 0, width);
-            //GL.Vertex3(width, width, width);
-            //GL.Vertex3(0, width, width);
-            //GL.End();
-
-            ///*правая*/
-            //GL.Begin(PrimitiveType.Polygon);
-            //GL.Vertex3(width, 0, 0);
-            //GL.Vertex3(width, 0, width);
-            //GL.Vertex3(width, width, width);
-            //GL.Vertex3(width, width, 0);
-            //GL.End();
-
-            //GL.Color3(Color.Black);
-            //GL.Begin(PrimitiveType.LineLoop);
-            //GL.Vertex3(0, 0, 0);
-            //GL.Vertex3(0, width, 0);
-            //GL.Vertex3(width, width, 0);
-            //GL.Vertex3(width, 0, 0);
-            //GL.End();
-
-            //GL.Begin(PrimitiveType.LineLoop);
-            //GL.Vertex3(width, 0, 0);
-            //GL.Vertex3(width, 0, width);
-            //GL.Vertex3(width, width, width);
-            //GL.Vertex3(width, width, 0);
-            //GL.End();
-
-            //GL.Begin(PrimitiveType.LineLoop);
-            //GL.Vertex3(0, 0, width);
-            //GL.Vertex3(width, 0, width);
-            //GL.Vertex3(width, width, width);
-            //GL.Vertex3(0, width, width);
-            //GL.End();
-
-            //GL.Begin(PrimitiveType.LineLoop);
-            //GL.Vertex3(0, 0, 0);
-            //GL.Vertex3(0, 0, width);
-            //GL.Vertex3(0, width, width);
-            //GL.Vertex3(0, width, 0);
-            //GL.End();
-
-            //GL.Color3(Color.Black);
+            //GL.LineWidth(2);
             //GL.Begin(PrimitiveType.Lines);
+            //GL.Color3(Color.Red);
             //GL.Vertex3(0, 0, 0);
-            //GL.Vertex3(50, 0, 0);
-            //GL.Vertex3(0, 0, 0);
-            //GL.Vertex3(0, 50, 0);
-            //GL.Vertex3(0, 0, 0);
-            //GL.Vertex3(0, 0, 50);
-            //GL.End();
-            #endregion
+            //GL.Vertex3(100, 0, 0);
 
+            //GL.Color3(Color.Green);
+            //GL.Vertex3(0, 0, 0);
+            //GL.Vertex3(0, 100, 0);
+
+            //GL.Color3(Color.Blue);
+            //GL.Vertex3(0, 0, 0);
+            //GL.Vertex3(0, 0, 100);
+            //GL.End();
             GL.Color3(Color.White);
-            
+            MyOl.Cube(-width, -width, -width, width, width, width);
+
+            GL.LineWidth(1);
+
+            GL.Color3(Color.Red);
             MyOl.Sphere(5, 16, 16);
+            GL.Color3(Color.Blue);
+            MyOl.Sphere(5, 16, 16, 20);
+
+            GL.Color3(Color.Yellow);
+            GL.Begin(PrimitiveType.Lines);
+            var crg = electricField.GetChargeArray.Where(chrg => chrg.GetValue > 0d).First();
+            electricField.DrawLines(crg, 0, 8, GL.Vertex3);
+            GL.End();
 
             gCtrl.SwapBuffers();
         }
@@ -156,15 +103,18 @@ namespace ElectricFieldModel
             GL.ClearColor(Color.Black);
             GL.Enable(EnableCap.DepthTest);
 
-            Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView((float)(60 * Math.PI / 180), 1, 5, 20);
+            Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView((float)(80 * Math.PI / 180), 4/3, 5, 300);
             GL.MatrixMode(MatrixMode.Projection);
             GL.LoadMatrix(ref projection);
 
-            Matrix4 modelwiev = Matrix4.LookAt(5, 5, 10, 0, 0, 0, 0, 1, 0);
+            Matrix4 modelwiev = Matrix4.LookAt(0, 0, 20, 0, 0, 0, 0, 1, 0);
             GL.MatrixMode(MatrixMode.Modelview);
             GL.LoadMatrix(ref modelwiev);
 
             GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
         }
+
+        private int width = 50;
+        private Field electricField;
     }
 }
