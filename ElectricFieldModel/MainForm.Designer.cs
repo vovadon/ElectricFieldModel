@@ -28,7 +28,9 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.gCtrl = new OpenTK.GLControl();
+            this.angleTimer = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
             // 
             // gCtrl
@@ -37,15 +39,19 @@
             this.gCtrl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.gCtrl.Location = new System.Drawing.Point(0, 0);
             this.gCtrl.Name = "gCtrl";
-            this.gCtrl.Size = new System.Drawing.Size(784, 562);
+            this.gCtrl.Size = new System.Drawing.Size(800, 600);
             this.gCtrl.TabIndex = 0;
             this.gCtrl.VSync = false;
+            // 
+            // angleTimer
+            // 
+            this.angleTimer.Interval = 33;
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(784, 562);
+            this.ClientSize = new System.Drawing.Size(800, 600);
             this.Controls.Add(this.gCtrl);
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
@@ -57,6 +63,7 @@
         #endregion
 
         private OpenTK.GLControl gCtrl;
+        private System.Windows.Forms.Timer angleTimer;
     }
 }
 
