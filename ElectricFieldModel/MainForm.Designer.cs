@@ -45,7 +45,7 @@
             // 
             // angleTimer
             // 
-            this.angleTimer.Interval = 33;
+            this.angleTimer.Interval = 16;
             // 
             // MainForm
             // 

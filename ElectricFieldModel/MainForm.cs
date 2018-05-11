@@ -18,10 +18,15 @@ namespace ElectricFieldModel
         public MainForm()
         {
             InitializeComponent();
-            electricField = new Field(new Coord3d(-width, -width, -width), new Coord3d(width, width, width));
+
+            var electricField = new Field(new Coord3d(-width, -width, -width), new Coord3d(width, width, width));
 
             electricField.AddCharges(new Charge(new Coord3d(-10, 0, 0), 5, 4E-6), 
-                new Charge(new Coord3d(10, 0, 0), 5, -4E-6));
+                new Charge(new Coord3d(10, 0, 0), 5, -4E-6),
+                new Charge(new Coord3d(-10, 20, 0), 5, -4E-6),
+                new Charge(new Coord3d(10, 20, 0), 5, 4E-6));
+
+            vertex = CalculateVertex(electricField);
 
             gCtrl.Load += GCtrl_Load;
             gCtrl.Paint += GCtrl_Paint;
@@ -29,6 +34,24 @@ namespace ElectricFieldModel
             gCtrl.MouseMove += GCtrl_MouseMove;
 
             angleTimer.Tick += AngleTimer_Tick;
+        }
+
+        private double[][] CalculateVertex(Field electricField)
+        {
+            var chargeCollection = electricField.GetChargeArray.Where(chrg => chrg.GetValue > 0d);
+
+            var vertexArray = new double[chargeCollection.Count()][];
+            var vertex = new List<double>();
+
+            var i = 0;
+            foreach (var crg in chargeCollection)
+            {
+                electricField.DrawLines(crg, 1, 16, vertex.AddRange);
+
+                vertexArray[i++] = vertex.ToArray();
+                vertex.Clear();
+            }
+            return vertexArray;
         }
         
         private void GCtrl_MouseMove(object sender, MouseEventArgs e)
@@ -122,21 +145,27 @@ namespace ElectricFieldModel
 
             GL.Color3(Color.Red);
             MyOl.Sphere(5, 16, 16, -10);
+            MyOl.Sphere(5, 16, 16, 10, 20);
 
             GL.Color3(Color.Blue);
             MyOl.Sphere(5, 16, 16, 10);
+            MyOl.Sphere(5, 16, 16, -10, 20);
 
             GL.Color3(Color.Yellow);
             GL.Begin(PrimitiveType.Lines);
 
-            var chargeCollection = electricField.GetChargeArray.Where(chrg => chrg.GetValue > 0d);
-            foreach (var crg in chargeCollection)
+            for (int i = 0; i < vertex.Length; i++)
             {
-                electricField.DrawLines(crg, 2, 8, GL.Vertex3);
+                int columnCount = vertex[i].Length;
+
+                for (int j = 0; j < columnCount; j += 3)
+                {
+                    GL.Vertex3(vertex[i][j], vertex[i][j + 1], vertex[i][j + 2]);
+                }
             }
 
             GL.End();
-            
+
             gCtrl.SwapBuffers();
         }
 
@@ -166,6 +195,6 @@ namespace ElectricFieldModel
         private float speed = 1.0f;
         
         private int width = 100;
-        private Field electricField;
+        private double[][] vertex;
     }
 }
