@@ -26,7 +26,7 @@
         /// Требуемый метод для поддержки конструктора — не изменяйте 
         /// содержимое этого метода с помощью редактора кода.
         /// </summary>
-        private void InitializeComponent()
+        private void InitializeComponent(int width, int height)
         {
             this.components = new System.ComponentModel.Container();
             this.gCtrl = new OpenTK.GLControl();
@@ -39,7 +39,7 @@
             this.gCtrl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.gCtrl.Location = new System.Drawing.Point(0, 0);
             this.gCtrl.Name = "gCtrl";
-            this.gCtrl.Size = new System.Drawing.Size(800, 600);
+            this.gCtrl.Size = new System.Drawing.Size(width, height);
             this.gCtrl.TabIndex = 0;
             this.gCtrl.VSync = false;
             // 
@@ -51,7 +51,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 600);
+            this.ClientSize = new System.Drawing.Size(width, height);
             this.Controls.Add(this.gCtrl);
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;

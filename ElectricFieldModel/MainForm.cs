@@ -15,28 +15,36 @@ namespace ElectricFieldModel
 {
     public partial class MainForm : Form
     {
-        public MainForm()
+        public MainForm(FormUI ui, int width, int height, bool fullScreen)
         {
-            InitializeComponent();
+            InitializeComponent(width, height);
+            
+            if (fullScreen) WindowState = FormWindowState.Maximized;
 
-            var electricField = new Field(new Coord3d(-width, -width, -width), new Coord3d(width, width, width));
+            FieldWidth = 100;
+            Sensitivity = 4;
+            SpherePolygon = 8;
+            StepValue = 1.0;
 
-            electricField.AddCharges(new Charge(new Coord3d(-10, 0, 0), 5, 4E-6), 
-                new Charge(new Coord3d(10, 0, 0), 5, -4E-6),
-                new Charge(new Coord3d(-10, 20, 0), 5, -4E-6),
-                new Charge(new Coord3d(10, 20, 0), 5, 4E-6));
-
-            vertex = CalculateVertex(electricField);
-
+            userInterface = ui;
+            
             gCtrl.Load += GCtrl_Load;
             gCtrl.Paint += GCtrl_Paint;
             gCtrl.KeyDown += GCtrl_KeyDown;
-            gCtrl.MouseMove += GCtrl_MouseMove;
 
             angleTimer.Tick += AngleTimer_Tick;
         }
 
-        private double[][] CalculateVertex(Field electricField)
+        public void AddCharges(Charge[] charges)
+        {
+            electricField = new Field(new Coord3d(-FieldWidth, -FieldWidth, -FieldWidth), new Coord3d(FieldWidth, FieldWidth, FieldWidth));
+
+            electricField.AddCharges(charges);
+
+            vertex = CalculateVertex();
+        }
+
+        private double[][] CalculateVertex()
         {
             var chargeCollection = electricField.GetChargeArray.Where(chrg => chrg.GetValue > 0d);
 
@@ -46,18 +54,12 @@ namespace ElectricFieldModel
             var i = 0;
             foreach (var crg in chargeCollection)
             {
-                electricField.DrawLines(crg, 1, 16, vertex.AddRange);
+                electricField.DrawLines(crg, StepValue, SpherePolygon, vertex.AddRange);
 
                 vertexArray[i++] = vertex.ToArray();
                 vertex.Clear();
             }
             return vertexArray;
-        }
-        
-        private void GCtrl_MouseMove(object sender, MouseEventArgs e)
-        {
-            mouseX = e.X;
-            mouseY = e.Y;
         }
 
         private void AngleTimer_Tick(object sender, EventArgs e)
@@ -65,8 +67,8 @@ namespace ElectricFieldModel
             int xt = Screen.PrimaryScreen.Bounds.Width / 2;
             int yt = Screen.PrimaryScreen.Bounds.Height / 2;
 
-            angleX += (400 - mouseX) / 4;
-            angleY += (304 - mouseY) / 4;
+            angleX += (xt - Cursor.Position.X) / Sensitivity;
+            angleY += (yt - Cursor.Position.Y) / Sensitivity;
 
             if (angleY < -89.0) angleY = -89.0f;
             if (angleY > 89.0) angleY = 89.0f;
@@ -107,7 +109,9 @@ namespace ElectricFieldModel
                     dz = (float)Math.Cos(angleX / 180 * Math.PI) * speed;
                     break;
                 case Keys.Escape:
-                    Application.Exit();
+                    Close();
+                    Cursor.Show();
+                    userInterface.Show();
                     break;
             }
 
@@ -139,19 +143,21 @@ namespace ElectricFieldModel
             //GL.End();
 
             GL.Color3(Color.White);
-            MyOl.Cube(-width, -width, -width, width, width, width);
+            MyOl.Cube(-FieldWidth, -FieldWidth, -FieldWidth, FieldWidth, FieldWidth, FieldWidth);
 
-            GL.LineWidth(1);
+            foreach (var crg in electricField.GetChargeArray)
+            {
+                var pos = crg.GetPosition;
 
-            GL.Color3(Color.Red);
-            MyOl.Sphere(5, 16, 16, -10);
-            MyOl.Sphere(5, 16, 16, 10, 20);
+                if (crg.GetValue > 0d)
+                    GL.Color3(PositiveColor);
+                else
+                    GL.Color3(NegativeColor);
 
-            GL.Color3(Color.Blue);
-            MyOl.Sphere(5, 16, 16, 10);
-            MyOl.Sphere(5, 16, 16, -10, 20);
+                MyOl.Sphere(5, 16, 16, (int)pos.X, (int)pos.Y, (int)pos.Z);
+            }
 
-            GL.Color3(Color.Yellow);
+            GL.Color3(LineColor);
             GL.Begin(PrimitiveType.Lines);
 
             for (int i = 0; i < vertex.Length; i++)
@@ -183,18 +189,27 @@ namespace ElectricFieldModel
             GL.LoadMatrix(ref modelwiev);
 
             GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
-
+            
             Cursor.Hide();
             angleTimer.Start();
         }
 
-        private int mouseX, mouseY;
+        public int FieldWidth { get; set; }
+        public int Sensitivity { get; set; }
+        public int SpherePolygon { get; set; }
+        public double StepValue { get; set; }
+
+        public Color PositiveColor { get; set; }
+        public Color NegativeColor { get; set; }
+        public Color LineColor { get; set; }
+
         private float angleX, angleY;
         private float dx, dy, dz;
         private float x, y, z = 50;
         private float speed = 1.0f;
-        
-        private int width = 100;
         private double[][] vertex;
+
+        private FormUI userInterface;
+        private Field electricField;
     }
 }
