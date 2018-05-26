@@ -26,7 +26,6 @@ namespace ElectricFieldModel
         {
             InitializeComponent();
             FieldConfigurationInit();
-            ColorsInit();
 
             launchBut.Click += LaunchBut_Click;
 
@@ -35,6 +34,8 @@ namespace ElectricFieldModel
             quadrupoleRBut.CheckedChanged += FieldTypeChangedChanged;
             octopoleRBut.CheckedChanged += FieldTypeChangedChanged;
 
+            crgDistanceTxt.KeyDown += CrgDistanceTxt_KeyDown;
+
             crgValueTxt.KeyDown += CrgInfoTxt_KeyDown;
             xPosTxt.KeyDown += CrgInfoTxt_KeyDown;
             yPosTxt.KeyDown += CrgInfoTxt_KeyDown;
@@ -42,16 +43,15 @@ namespace ElectricFieldModel
 
             crgNumCmbBox.SelectedIndexChanged += CrgNumChanged;
         }
-
+        
         private void FieldConfigurationInit()
         {
             chargeList = new List<Charge>();
 
             chargeList.Add(new Charge(new Coord3d(0, 0, 0), 5, 4E-6));
-        }
 
-        private void ColorsInit()
-        {
+            distanceBetweenCharges = 20d;
+
             colors = new Dictionary<string, Color>
             {
                 { "Красный", Color.Red },
@@ -61,6 +61,23 @@ namespace ElectricFieldModel
                 { "Оранжевый", Color.Orange },
                 { "Белый", Color.White }
             };
+        }
+
+        private void CrgDistanceTxt_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode != Keys.Enter)
+                return;
+
+            if (!Regex.IsMatch(crgDistanceTxt.Text, @"^\d+((\,|E-)\d+)?$"))
+            {
+                MessageBox.Show("Неправильно введенные данные", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            distanceBetweenCharges = Double.Parse(crgDistanceTxt.Text);
+            MessageBox.Show("Расстояние между зарядами изменено на " + crgDistanceTxt.Text, "Уведомление", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+            FieldTypeChangedChanged(this, EventArgs.Empty);
         }
 
         private void CrgInfoTxt_KeyDown(object sender, KeyEventArgs e)
@@ -99,23 +116,14 @@ namespace ElectricFieldModel
 
         private void FieldTypeChangedChanged(object sender, EventArgs e)
         {
-            String name = (sender as RadioButton).Name;
-
-            switch (name)
-            {
-                case "singleRBut":
-                    ConfigureField(FieldType.single);
-                    break;
-                case "dipoleRBut":
-                    ConfigureField(FieldType.dipole);
-                    break;
-                case "quadrupoleRBut":
-                    ConfigureField(FieldType.quadrupole);
-                    break;
-                case "octopoleRBut":
-                    ConfigureField(FieldType.octopole);
-                    break;
-            }
+            if (singleRBut.Checked)
+                ConfigureField(FieldType.single);
+            else if (dipoleRBut.Checked)
+                ConfigureField(FieldType.dipole);
+            else if (quadrupoleRBut.Checked)
+                ConfigureField(FieldType.quadrupole);
+            else if (octopoleRBut.Checked)
+                ConfigureField(FieldType.octopole);
         }
 
         private void LaunchBut_Click(object sender, EventArgs e)
@@ -165,6 +173,7 @@ namespace ElectricFieldModel
         {
             chargeList.Clear();
             crgNumCmbBox.Items.Clear();
+            double distance = distanceBetweenCharges / 2;
 
             switch (fieldType)
             {
@@ -174,20 +183,31 @@ namespace ElectricFieldModel
                     crgNumCmbBox.Items.Add(1);
                     break;
                 case FieldType.dipole:
-                    chargeList.Add(new Charge(new Coord3d(-10, 0, 0), 5, 4E-6));
-                    chargeList.Add(new Charge(new Coord3d(10, 0, 0), 5, -4E-6));
+                    chargeList.Add(new Charge(new Coord3d(-distance, 0, 0), 5, 4E-6));
+                    chargeList.Add(new Charge(new Coord3d(distance, 0, 0), 5, -4E-6));
 
                     crgNumCmbBox.Items.AddRange(new object[] { 1, 2 });
                     break;
                 case FieldType.quadrupole:
-                    chargeList.Add(new Charge(new Coord3d(-10, 0, 0), 5, 4E-6));
-                    chargeList.Add(new Charge(new Coord3d(10, 0, 0), 5, -4E-6));
-                    chargeList.Add(new Charge(new Coord3d(-10, 20, 0), 5, -4E-6));
-                    chargeList.Add(new Charge(new Coord3d(10, 20, 0), 5, 4E-6));
+                    chargeList.Add(new Charge(new Coord3d(-distance, -distance, 0), 5, 4E-6));
+                    chargeList.Add(new Charge(new Coord3d(distance, -distance, 0), 5, -4E-6));
+                    chargeList.Add(new Charge(new Coord3d(-distance, distance, 0), 5, -4E-6));
+                    chargeList.Add(new Charge(new Coord3d(distance, distance, 0), 5, 4E-6));
 
                     crgNumCmbBox.Items.AddRange(new object[] { 1, 2, 3, 4 });
                     break;
                 case FieldType.octopole:
+                    chargeList.Add(new Charge(new Coord3d(-distance, -distance, distance), 5, 4E-6));
+                    chargeList.Add(new Charge(new Coord3d(-distance, -distance, -distance), 5, -4E-6));
+                    chargeList.Add(new Charge(new Coord3d(-distance, distance, distance), 5, -4E-6));
+                    chargeList.Add(new Charge(new Coord3d(-distance, distance, -distance), 5, 4E-6));
+
+                    chargeList.Add(new Charge(new Coord3d(distance, -distance, distance), 5, -4E-6));
+                    chargeList.Add(new Charge(new Coord3d(distance, -distance, -distance), 5, 4E-6));
+                    chargeList.Add(new Charge(new Coord3d(distance, distance, distance), 5, 4E-6));
+                    chargeList.Add(new Charge(new Coord3d(distance, distance, -distance), 5, -4E-6));
+
+                    crgNumCmbBox.Items.AddRange(new object[] { 1, 2, 3, 4, 5, 6, 7, 8 });
                     break;
             }
         }
@@ -229,8 +249,11 @@ namespace ElectricFieldModel
             get => lineColorCmbBox.SelectedIndex == -1 ? Color.Yellow : colors[(String)lineColorCmbBox.SelectedItem];
         }
 
+        private double distanceBetweenCharges;
+
         private List<Charge> chargeList;
         private Dictionary<String, Color> colors;
+
         private Regex regex = new Regex(@"^-?\d+((\,|E-)\d+)?$");
     }
 }

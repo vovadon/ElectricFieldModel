@@ -180,7 +180,7 @@ namespace ElectricFieldModel
             GL.ClearColor(Color.Black);
             GL.Enable(EnableCap.DepthTest);
 
-            Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView((float)(80 * Math.PI / 180), 4/3, 5, 300);
+            Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView((float)(80 * Math.PI / 180), gCtrl.Width / gCtrl.Height, 5, 500);
             GL.MatrixMode(MatrixMode.Projection);
             GL.LoadMatrix(ref projection);
 
