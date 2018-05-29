@@ -48,7 +48,7 @@ namespace ElectricFieldModel
         {
             chargeList = new List<Charge>();
 
-            chargeList.Add(new Charge(new Coord3d(0, 0, 0), 5, 4E-6));
+            ConfigureField(FieldType.single);
 
             distanceBetweenCharges = 20d;
 
@@ -62,13 +62,13 @@ namespace ElectricFieldModel
                 { "Белый", Color.White }
             };
         }
-
+       
         private void CrgDistanceTxt_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode != Keys.Enter)
                 return;
 
-            if (!Regex.IsMatch(crgDistanceTxt.Text, @"^\d+((\,|E-)\d+)?$"))
+            if (!Regex.IsMatch(crgDistanceTxt.Text, @"^\d+((\,|E-)\d+)?$")) // начало с 1 и более цифр, далее "," или "E-", затем 1 и более цифр и это всё может быть 0 или 1 раз
             {
                 MessageBox.Show("Неправильно введенные данные", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
@@ -79,7 +79,7 @@ namespace ElectricFieldModel
 
             FieldTypeChangedChanged(this, EventArgs.Empty);
         }
-
+    
         private void CrgInfoTxt_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode != Keys.Enter)
@@ -101,7 +101,7 @@ namespace ElectricFieldModel
 
             MessageBox.Show($"Данные заряда №{index + 1} изменены", "Уведомление", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
-
+     
         private void CrgNumChanged(object sender, EventArgs e)
         {
             var index = (sender as ComboBox).SelectedIndex;
@@ -113,7 +113,7 @@ namespace ElectricFieldModel
             yPosTxt.Text = pos.Y.ToString();
             zPosTxt.Text = pos.Z.ToString();
         }
-
+        
         private void FieldTypeChangedChanged(object sender, EventArgs e)
         {
             if (singleRBut.Checked)
@@ -125,7 +125,7 @@ namespace ElectricFieldModel
             else if (octopoleRBut.Checked)
                 ConfigureField(FieldType.octopole);
         }
-
+      
         private void LaunchBut_Click(object sender, EventArgs e)
         {
             var resolution = GetResolution();
@@ -146,7 +146,7 @@ namespace ElectricFieldModel
             this.Hide();
             mainForm.Show();
         }
-
+      
         private (int width, int height) GetResolution()
         {
             if (fullScreenCkBox.Checked)
@@ -211,7 +211,7 @@ namespace ElectricFieldModel
                     break;
             }
         }
-
+      
         private double GetStep()
         {
             if (!Regex.IsMatch(stepValueTxt.Text, @"^\d+((\,|E-)\d+)?$"))
@@ -221,7 +221,7 @@ namespace ElectricFieldModel
             }
             return Double.Parse(stepValueTxt.Text);
         }
-
+   
         private int GetFieldWidth()
         {
             if (!Regex.IsMatch(fieldWidthTxt.Text, "^\\d+$"))
@@ -243,17 +243,16 @@ namespace ElectricFieldModel
         {
             get => negativeColorCmbBox.SelectedIndex == -1 ? Color.Blue : colors[(String)negativeColorCmbBox.SelectedItem];
         }
-
+        
         private Color GetLineColor
         {
             get => lineColorCmbBox.SelectedIndex == -1 ? Color.Yellow : colors[(String)lineColorCmbBox.SelectedItem];
         }
+        
 
         private double distanceBetweenCharges;
-
         private List<Charge> chargeList;
         private Dictionary<String, Color> colors;
-
         private Regex regex = new Regex(@"^-?\d+((\,|E-)\d+)?$");
     }
 }

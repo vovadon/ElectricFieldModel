@@ -18,8 +18,12 @@ namespace ElectricFieldModel
         public MainForm(FormUI ui, int width, int height, bool fullScreen)
         {
             InitializeComponent(width, height);
-            
-            if (fullScreen) WindowState = FormWindowState.Maximized;
+
+            if (fullScreen)
+            {
+                FormBorderStyle = FormBorderStyle.None;
+                //WindowState = FormWindowState.Maximized;
+            }
 
             FieldWidth = 100;
             Sensitivity = 4;
@@ -67,8 +71,8 @@ namespace ElectricFieldModel
             int xt = Screen.PrimaryScreen.Bounds.Width / 2;
             int yt = Screen.PrimaryScreen.Bounds.Height / 2;
 
-            angleX += (xt - Cursor.Position.X) / Sensitivity;
-            angleY += (yt - Cursor.Position.Y) / Sensitivity;
+            angleX += (xt - Cursor.Position.X) / (11 - Sensitivity);
+            angleY += (yt - Cursor.Position.Y) / (11 - Sensitivity);
 
             if (angleY < -89.0) angleY = -89.0f;
             if (angleY > 89.0) angleY = 89.0f;
